@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30611.23
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Stregsystem", "Stregsystem.csproj", "{50F4EA67-A8E1-4401-9BCE-ADC33C1C5A94}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{50F4EA67-A8E1-4401-9BCE-ADC33C1C5A94}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{50F4EA67-A8E1-4401-9BCE-ADC33C1C5A94}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{50F4EA67-A8E1-4401-9BCE-ADC33C1C5A94}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{50F4EA67-A8E1-4401-9BCE-ADC33C1C5A94}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F5E54E82-C09D-458F-84F6-2F344F5275E2}
+	EndGlobalSection
+EndGlobal
