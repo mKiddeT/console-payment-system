@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -8,6 +9,15 @@ namespace Stregsystem.ProgramFiles
 {
     class StregSystemCLI : IStregSystemUI
     {
+        private IStregSystem stregSystem;
+
+        public StregSystemCLI(IStregSystem stregSystem)
+        {
+            this.stregSystem = stregSystem;
+        }
+
+        public event StregSystemEvent CommandEntered;
+
         public void DisplayUserNotFound(string username)
         {
             Console.WriteLine($"User [{username}] could not be found.");
@@ -55,12 +65,37 @@ namespace Stregsystem.ProgramFiles
 
         public void Start()
         {
-            throw new NotImplementedException();
+            //TODO: Uendeligt loop indtil Close() bliver kaldt
+            PrintProductList();
+            PromptForInput();
+            PromptForInput();
+            PromptForInput();
         }
 
         public void Close()
         {
-            throw new NotImplementedException();
+            //TODO: Stop applikationen
+        }
+
+        private void PrintProductList()
+        {
+            IEnumerable<Product> pList = stregSystem.ActiveProducts;
+
+            foreach (Product p in pList)
+            {
+                Console.WriteLine(p);
+            }
+        }
+
+        private void PromptForInput()
+        {
+            string input;
+            Console.Write("Please enter: ");
+            input = Console.ReadLine();
+
+
+            StregSystemEventArgs command = new StregSystemEventArgs(input);
+            CommandEntered.Invoke(command);
         }
     }
 }

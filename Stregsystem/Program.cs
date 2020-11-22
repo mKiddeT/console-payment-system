@@ -12,9 +12,10 @@ namespace Stregsystem
         static void Main(string[] args) 
         {
             IStregSystem stregSystem = new StregSystem();
-
-            stregSystem.BuyProduct(stregSystem.GetUserByUsername("rking"), stregSystem.GetProductByID(14));
-
+            IStregSystemUI ui = new StregSystemCLI(stregSystem);
+            StregSystemController controller = new StregSystemController(stregSystem, ui);
+            
+            ui.Start();
         }
     }
 }

@@ -17,28 +17,27 @@ namespace Stregsystem.ProgramFiles
 
         public StregSystem()
         {
-            AllProducts = ReadProductList(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data\\products.csv"));
-            ActiveProducts = AllProducts.Select(p => p).Where(p => p.Active == true);
-
-            Users = ReadUserList(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data\\users.csv"));
+            Users = ReadUserList(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\Data\\users.csv"));
+            AllProducts = ReadProductList(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\Data\products.csv"));
+            ActiveProducts = AllProducts.Where(p => p.Active == true);
 
             Transactions = new List<Transaction>();
         }
 
         public InsertCashTransaction AddCreditsToAccount(User user, int amount)
         {
-            InsertCashTransaction ICT = new InsertCashTransaction(user, amount);
-            ExecuteTransaction(ICT);
-            return ICT;
+            InsertCashTransaction ict = new InsertCashTransaction(user, amount);
+            ExecuteTransaction(ict);
+            return ict;
         }
 
         public BuyTransaction BuyProduct(User user, Product product)
         {
-            BuyTransaction BT = new BuyTransaction(user, product);
+            BuyTransaction bt = new BuyTransaction(user, product);
             try
             {
-                ExecuteTransaction(BT);
-                return BT;
+                ExecuteTransaction(bt);
+                return bt;
             }
             catch (InsufficientCreditsException)
             {

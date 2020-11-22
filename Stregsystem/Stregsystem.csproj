@@ -55,6 +55,7 @@
     <Compile Include="ProgramFiles\StregSystem.cs" />
     <Compile Include="ProgramFiles\StregSystemCLI.cs" />
     <Compile Include="ProgramFiles\StregSystemController.cs" />
+    <Compile Include="ProgramFiles\StregSystemEventArgs.cs" />
     <Compile Include="ProgramFiles\Transaction.cs" />
     <Compile Include="ProgramFiles\User.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

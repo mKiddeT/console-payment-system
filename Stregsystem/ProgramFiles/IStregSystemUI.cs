@@ -8,6 +8,7 @@ namespace Stregsystem.ProgramFiles
 {
     interface IStregSystemUI
     {
+        event StregSystemEvent CommandEntered;
         void DisplayUserNotFound(string username);
         void DisplayProductNotFound(string product);
         void DisplayUserInfo(User user);
@@ -19,7 +20,7 @@ namespace Stregsystem.ProgramFiles
         void DisplayGeneralError(string errorString);
         void Start();
         void Close();
-        //event StregsystemEvent CommandEntered;
-
     }
+
+    delegate void StregSystemEvent(StregSystemEventArgs args);
 }
