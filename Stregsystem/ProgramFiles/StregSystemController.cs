@@ -26,10 +26,6 @@ namespace Stregsystem.ProgramFiles
                 ParseAdminCommand(command);
             else
             {
-                string username = null;
-                int productID = default;
-                int amount = default;
-
                 string[] commandArray = command.Split(' ');
 
                 if (commandArray.Length == 1)
@@ -82,14 +78,12 @@ namespace Stregsystem.ProgramFiles
 
         private void ParseUserMultiBuy(string username, string stringAmount, string stringProductID)
         {
-            int productID;
-            int amount;
-            if (!int.TryParse(stringAmount, out amount))
+            if (!int.TryParse(stringAmount, out var amount))
             {
                 ui.DisplayGeneralError($"Amount is not in the correct format.");
                 return;
             }
-            if (!int.TryParse(stringProductID, out productID))
+            if (!int.TryParse(stringProductID, out var productID))
             {
                 ui.DisplayGeneralError($"Product ID is not in the correct format.");
                 return;
