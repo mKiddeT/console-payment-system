@@ -13,8 +13,8 @@ namespace Stregsystem.ProgramFiles
         public int ID { get; }
         public string Name { get; }
         public decimal Price { get; }
-        public bool Active { get; }
-        public bool CanBeBoughtOnCredit { get; }
+        public bool Active { get; set; }
+        public bool CanBeBoughtOnCredit { get; set; }
 
         public Product(int id, string name, decimal price, bool active, bool canBeBoughtOnCredit)
         {

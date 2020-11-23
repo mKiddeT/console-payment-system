@@ -12,10 +12,14 @@ namespace Stregsystem.ProgramFiles
         private IStregSystem stregSystem;
         private IStregSystemUI ui;
 
+        private Dictionary<string, Action<string[]>> adminCommands;
+
         public StregSystemController(IStregSystem stregSystem, IStregSystemUI stregSystemUI)
         {
             this.stregSystem = stregSystem;
             this.ui = stregSystemUI;
+
+            InstantiateAdminCommands();
 
             ui.CommandEntered += e => ParseCommand(e.Command);
         }
@@ -78,6 +82,7 @@ namespace Stregsystem.ProgramFiles
 
         private void ParseUserMultiBuy(string username, string stringAmount, string stringProductID)
         {
+            //TODO: Check om den kan købe amount, inden den gør noget
             if (!int.TryParse(stringAmount, out var amount))
             {
                 ui.DisplayGeneralError($"Amount is not in the correct format.");
@@ -142,6 +147,21 @@ namespace Stregsystem.ProgramFiles
                 ui.DisplayGeneralError(e.Message);
                 return false;
             }
+        }
+
+        /// <summary>
+        /// Instantiate known admin commands to dictionary.
+        /// </summary>
+        private void InstantiateAdminCommands()
+        {
+            adminCommands = new Dictionary<string, Action<string[]>>();
+            adminCommands.Add(":quit", (args) => ui.Close());
+            adminCommands.Add(":q", (args) => ui.Close());
+            adminCommands.Add(":activate", (args) => stregSystem.GetProductByID(Convert.ToInt32(args[0])).Active = true);
+            adminCommands.Add(":deactivate", (args) => stregSystem.GetProductByID(Convert.ToInt32(args[0])).Active = false);
+            adminCommands.Add(":crediton", (args) => stregSystem.GetProductByID(Convert.ToInt32(args[0])).CanBeBoughtOnCredit = true);
+            adminCommands.Add(":creditoff", (args) => stregSystem.GetProductByID(Convert.ToInt32(args[0])).CanBeBoughtOnCredit = false);
+            adminCommands.Add(":addcredits", (args) => stregSystem.GetUserByUsername(args[0]).AddBalance(Convert.ToDecimal(args[1])));
         }
     }
 }
