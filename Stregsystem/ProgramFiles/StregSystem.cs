@@ -11,7 +11,7 @@ namespace Stregsystem.ProgramFiles
     class StregSystem : IStregSystem
     {
         public IEnumerable<Product> AllProducts { get; }
-        public IEnumerable<Product> ActiveProducts { get; }
+        public IEnumerable<Product> ActiveProducts { get; set; }
         public IEnumerable<User> Users { get; }
         public List<Transaction> Transactions { get; }
 
@@ -19,9 +19,14 @@ namespace Stregsystem.ProgramFiles
         {
             Users = ReadUserList(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\Data\\users.csv"));
             AllProducts = ReadProductList(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\Data\products.csv"));
-            ActiveProducts = AllProducts.Where(p => p.Active == true);
+            UpdateActiveProductList();
 
             Transactions = new List<Transaction>();
+        }
+
+        public void UpdateActiveProductList()
+        {
+            ActiveProducts = AllProducts.Where(p => p.Active == true);
         }
 
         public InsertCashTransaction AddCreditsToAccount(User user, int amount)
@@ -39,9 +44,13 @@ namespace Stregsystem.ProgramFiles
                 ExecuteTransaction(bt);
                 return bt;
             }
+            catch (NoneExistingItemException)
+            {
+                throw;
+            }
             catch (InsufficientCreditsException)
             {
-                return null;
+                throw;
             }
         }
 
@@ -61,7 +70,6 @@ namespace Stregsystem.ProgramFiles
 
             throw new NoneExistingItemException($"A product with the Id: {id} does not exist.");
         }
-
 
         public IEnumerable<Transaction> GetTransactions(User user, int count)
         {

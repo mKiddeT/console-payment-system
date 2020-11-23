@@ -9,6 +9,7 @@ namespace Stregsystem.ProgramFiles
     interface IStregSystem
     {
         IEnumerable<Product> ActiveProducts { get; }
+        void UpdateActiveProductList();
         InsertCashTransaction AddCreditsToAccount(User user, int amount);
         BuyTransaction BuyProduct(User user, Product product);
         Product GetProductByID(int id);

@@ -16,6 +16,9 @@ namespace Stregsystem.ProgramFiles
 
         public override void Execute()
         {
+            if (!Product.Active)
+                throw new NoneExistingItemException($"The product [{Product.ID}] is not active.");
+
             if (User.GetBalance() >= Amount)
                 User.AddBalance(-Amount);
             else if (Product.CanBeBoughtOnCredit)

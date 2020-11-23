@@ -17,6 +17,7 @@ namespace Stregsystem.ProgramFiles
         void DisplayUserBuysProduct(BuyTransaction transaction);
         void DisplayUserBuysProduct(int count, BuyTransaction transaction);
         void DisplayInsufficientCash(User user, Product product);
+        void DisplayInsufficientCash(User user, int count, Product product);
         void DisplayGeneralError(string errorString);
         void Start();
         void Close();

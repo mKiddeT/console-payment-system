@@ -11,12 +11,12 @@ namespace Stregsystem.ProgramFiles
     {
         private IStregSystem stregSystem;
 
+        public event StregSystemEvent CommandEntered;
+
         public StregSystemCLI(IStregSystem stregSystem)
         {
             this.stregSystem = stregSystem;
         }
-
-        public event StregSystemEvent CommandEntered;
 
         public void DisplayUserNotFound(string username)
         {
@@ -40,7 +40,7 @@ namespace Stregsystem.ProgramFiles
 
         public void DisplayAdminCommandNotFoundMessage(string adminCommand)
         {
-            Console.WriteLine($"The command: {adminCommand} could not be recognized.");
+            Console.WriteLine($"The admin command: {adminCommand} could not be recognized.");
         }
 
         public void DisplayUserBuysProduct(BuyTransaction transaction)
@@ -50,12 +50,17 @@ namespace Stregsystem.ProgramFiles
 
         public void DisplayUserBuysProduct(int count, BuyTransaction transaction)
         {
-            Console.WriteLine($"User: {transaction.User} bought: {count} {transaction.Product}.");
+            Console.WriteLine($"User: {transaction.User} bought: {count} x {transaction.Product}.");
         }
 
         public void DisplayInsufficientCash(User user, Product product)
         {
             Console.WriteLine($"User: {user} has insufficient cash to buy: {product}");
+        }
+
+        public void DisplayInsufficientCash(User user, int count, Product product)
+        {
+            Console.WriteLine($"User: {user} has insufficient cash to buy: {count} x {product}");
         }
 
         public void DisplayGeneralError(string errorString)
@@ -65,16 +70,14 @@ namespace Stregsystem.ProgramFiles
 
         public void Start()
         {
-            //TODO: Uendeligt loop indtil Close() bliver kaldt
+            Console.Clear();
             PrintProductList();
-            PromptForInput();
-            PromptForInput();
             PromptForInput();
         }
 
         public void Close()
         {
-            //TODO: Stop applikationen
+            System.Environment.Exit(1);
         }
 
         private void PrintProductList()
@@ -90,12 +93,14 @@ namespace Stregsystem.ProgramFiles
         private void PromptForInput()
         {
             string input;
-            Console.Write("Please enter: ");
+            Console.Write("\nPlease enter command: ");
             input = Console.ReadLine();
 
 
             StregSystemEventArgs command = new StregSystemEventArgs(input);
             CommandEntered.Invoke(command);
+
+            PromptForInput();
         }
     }
 }
