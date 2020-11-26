@@ -59,5 +59,11 @@ namespace Stregsystem.ProgramFiles
             else
                 throw new ArgumentException("Object is not a User");
         }
+
+        /// <returns>Returns user ID</returns>
+        public override int GetHashCode()
+        {
+            return this.ID;
+        }
     }
 }
