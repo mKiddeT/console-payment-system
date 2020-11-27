@@ -15,6 +15,13 @@ namespace Stregsystem.ProgramFiles
         {
             this.SeasonStartDate = seasonStartDate;
             this.SeasonEndDate = seasonEndDate;
+
+            Active = IsSeasonActive();
+        }
+
+        public bool IsSeasonActive()
+        {
+            return DateTime.Now >= SeasonStartDate && DateTime.Now <= SeasonEndDate;
         }
     }
 }

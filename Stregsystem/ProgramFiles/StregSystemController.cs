@@ -21,7 +21,7 @@ namespace Stregsystem.ProgramFiles
 
             InstantiateAdminCommands();
 
-            ui.CommandEntered += e => ParseCommand(e.Command);
+            ui.CommandEntered += ParseCommand;
         }
 
         /// <summary>
@@ -95,7 +95,7 @@ namespace Stregsystem.ProgramFiles
                     }
                     catch (InsufficientCreditsException)
                     {
-                        ui.DisplayInsufficientCash(stregSystem.GetUserByUsername(commandArray[0]), stregSystem.GetProductByID(Convert.ToInt32(commandArray[1])));
+                        ui.DisplayInsufficientCash(stregSystem.GetUserByUsername(commandArray[0]), Convert.ToInt32(commandArray[1]), stregSystem.GetProductByID(Convert.ToInt32(commandArray[2])));
                     }
                 }
                 else

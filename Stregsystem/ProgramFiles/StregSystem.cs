@@ -16,7 +16,7 @@ namespace Stregsystem.ProgramFiles
         public List<Transaction> Transactions { get; }
 
         public event UserBalanceNotification UserBalanceWarning;
-        private decimal _balanceWarning = 50;
+        private decimal _balanceWarning = 50M;
 
         public StregSystem()
         {
@@ -109,7 +109,7 @@ namespace Stregsystem.ProgramFiles
         /// </summary>
         public void WriteTransactionLogs()
         {
-            using (System.IO.StreamWriter file = new System.IO.StreamWriter(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\Data\\Logs.csv"), true))
+            using (StreamWriter file = new StreamWriter(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\Data\\Logs.csv"), true))
             {
                 foreach (Transaction transaction in Transactions)
                 {

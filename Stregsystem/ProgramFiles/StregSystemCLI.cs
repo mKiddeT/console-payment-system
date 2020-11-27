@@ -56,17 +56,17 @@ namespace Stregsystem.ProgramFiles
 
         public void DisplayUserBuysProduct(int count, BuyTransaction transaction)
         {
-            Console.WriteLine($"User: {transaction.User.UserName} has bought: [{count} x {transaction.Product}].");
+            Console.WriteLine($"User: {transaction.User.UserName} has bought: {count} x [{transaction.Product}].");
         }
 
         public void DisplayInsufficientCash(User user, Product product)
         {
-            Console.WriteLine($"User: {user.UserName} does not have enough credits to buy: {product.ID} {product.Name}");
+            Console.WriteLine($"User: {user.UserName} does not have enough credits to buy: [{product}]");
         }
 
         public void DisplayInsufficientCash(User user, int count, Product product)
         {
-            Console.WriteLine($"User: {user.UserName} has insufficient cash to buy: {count} x {product.ID} {product.Name}");
+            Console.WriteLine($"User: {user.UserName} has insufficient cash to buy: {count} x [{product}]");
         }
 
         public void DisplayGeneralError(string errorString)
@@ -78,7 +78,7 @@ namespace Stregsystem.ProgramFiles
         {
             int currentCursorPos = Console.CursorTop;
             Console.SetCursorPosition(0, stregSystem.ActiveProducts.Count() + 5);
-            Console.WriteLine($"Low balance warning: [{user.UserName}] has low balance remaining: {user.Balance}.");
+            Console.WriteLine($"Low balance warning: [{user.UserName}] has low balance remaining: {user.Balance} kr.");
             Console.SetCursorPosition(0, currentCursorPos);
         }
 
@@ -108,13 +108,13 @@ namespace Stregsystem.ProgramFiles
             IEnumerable<Product> pList = stregSystem.ActiveProducts;
 
             Console.Clear();
-            Console.WriteLine($"------------------------Stregsystem------------------------");
-            Console.WriteLine($"|{"ID:",-8}|{"NAME:",-40}|{"PRICE:",-7}|");
+            Console.WriteLine($"-------------------------Stregsystem--------------------------");
+            Console.WriteLine($"|{"   ID:",-8}|{"                  NAME:",-40}|{"  PRICE:",-10}|");
             foreach (Product p in pList)
             {
-                Console.WriteLine($"| {p.ID,-7}| {p.Name,-39}| {p.Price,-6}|");
+                Console.WriteLine($"| {p.ID,-7}| {p.Name,-39}| {$"{p.Price} kr",8} |");
             }
-            Console.WriteLine("-----------------------------------------------------------");
+            Console.WriteLine("--------------------------------------------------------------");
         }
 
         private void PromptForInput()
@@ -125,8 +125,7 @@ namespace Stregsystem.ProgramFiles
             PrintProductList();
             Console.WriteLine();
 
-            StregSystemEventArgs command = new StregSystemEventArgs(input);
-            CommandEntered?.Invoke(command);
+            CommandEntered?.Invoke(input);
         }
 
         /// <summary>

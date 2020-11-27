@@ -23,5 +23,5 @@ namespace Stregsystem.ProgramFiles
         void Close();
     }
 
-    delegate void StregSystemEvent(StregSystemEventArgs args);
+    delegate void StregSystemEvent(string command);
 }
