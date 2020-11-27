@@ -44,12 +44,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
+    <Compile Include="ProgramFiles\BadInfomationException.cs" />
     <Compile Include="ProgramFiles\BuyTransaction.cs" />
     <Compile Include="ProgramFiles\InsertCashTransaction.cs" />
     <Compile Include="ProgramFiles\InsufficientCreditsException.cs" />
     <Compile Include="ProgramFiles\IStregSystem.cs" />
     <Compile Include="ProgramFiles\IStregSystemUI.cs" />
-    <Compile Include="ProgramFiles\NoneExistingItemException.cs" />
+    <Compile Include="ProgramFiles\NoneExistingProductException.cs" />
+    <Compile Include="ProgramFiles\NoneExistingUserException.cs" />
     <Compile Include="ProgramFiles\Product.cs" />
     <Compile Include="ProgramFiles\SeasonalProduct.cs" />
     <Compile Include="ProgramFiles\StregSystem.cs" />
@@ -62,6 +64,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="Data\Logs.csv" />
     <None Include="Data\products.csv" />
     <None Include="Data\users.csv" />
   </ItemGroup>

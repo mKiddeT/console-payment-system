@@ -17,9 +17,9 @@ namespace Stregsystem.ProgramFiles
         public override void Execute()
         {
             if (!Product.Active)
-                throw new NoneExistingItemException($"The product [{Product.ID}] is not active.");
+                throw new NoneExistingProductException($"{Product.ID}");
 
-            if (User.GetBalance() >= Amount)
+            if (User.Balance >= Amount)
                 User.AddBalance(-Amount);
             else if (Product.CanBeBoughtOnCredit)
                 User.AddBalance(-Amount);
@@ -29,7 +29,7 @@ namespace Stregsystem.ProgramFiles
 
         public override string ToString()
         {
-            return $"{ID}: Transaction of {Amount} from {User} for {Product}.";
+            return $"{ID}: Transaction of {Amount} from {User.UserName} for {Product.ID}: {Product.Name}.";
         }
     }
 }

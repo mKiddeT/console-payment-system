@@ -25,7 +25,7 @@ namespace Stregsystem.ProgramFiles
 
         public override string ToString()
         {
-            return $"{ID} {User} {Amount} {Date}";
+            return $"{ID}, {User}, {Amount}, {Date}";
         }
     }
 }

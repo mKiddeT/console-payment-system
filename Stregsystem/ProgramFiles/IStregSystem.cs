@@ -9,6 +9,7 @@ namespace Stregsystem.ProgramFiles
     interface IStregSystem
     {
         IEnumerable<Product> ActiveProducts { get; }
+        event UserBalanceNotification UserBalanceWarning;
         void UpdateActiveProductList();
         InsertCashTransaction AddCreditsToAccount(User user, int amount);
         BuyTransaction BuyProduct(User user, Product product);
@@ -16,5 +17,8 @@ namespace Stregsystem.ProgramFiles
         IEnumerable<Transaction> GetTransactions(User user, int count);
         IEnumerable<User> GetUsers(Func<User, bool> predicate);
         User GetUserByUsername(string username);
+        void WriteTransactionLogs();
     }
+
+    delegate void UserBalanceNotification(User user);
 }

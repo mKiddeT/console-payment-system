@@ -12,12 +12,15 @@ namespace Stregsystem.ProgramFiles
     {
         public IEnumerable<Product> AllProducts { get; }
         public IEnumerable<Product> ActiveProducts { get; set; }
-        public IEnumerable<User> Users { get; }
+        public List<User> Users { get; }
         public List<Transaction> Transactions { get; }
+
+        public event UserBalanceNotification UserBalanceWarning;
+        private decimal _balanceWarning = 50;
 
         public StregSystem()
         {
-            Users = ReadUserList(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\Data\\users.csv"));
+            Users = ReadUserList(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\Data\\users.csv")).ToList();
             AllProducts = ReadProductList(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\Data\products.csv"));
             UpdateActiveProductList();
 
@@ -39,24 +42,17 @@ namespace Stregsystem.ProgramFiles
         public BuyTransaction BuyProduct(User user, Product product)
         {
             BuyTransaction bt = new BuyTransaction(user, product);
-            try
-            {
-                ExecuteTransaction(bt);
-                return bt;
-            }
-            catch (NoneExistingItemException)
-            {
-                throw;
-            }
-            catch (InsufficientCreditsException)
-            {
-                throw;
-            }
+            ExecuteTransaction(bt);
+            return bt;
         }
 
         private void ExecuteTransaction(Transaction transaction)
         {
             transaction.Execute();
+
+            if (transaction.User.Balance < _balanceWarning)
+                UserBalanceWarning?.Invoke(transaction.User);
+
             Transactions.Add(transaction);
         }
 
@@ -68,7 +64,7 @@ namespace Stregsystem.ProgramFiles
                     return product;
             }
 
-            throw new NoneExistingItemException($"A product with the Id: {id} does not exist.");
+            throw new NoneExistingProductException($"{id}");
         }
 
         public IEnumerable<Transaction> GetTransactions(User user, int count)
@@ -105,7 +101,30 @@ namespace Stregsystem.ProgramFiles
                     return user;
             }
 
-            throw new NoneExistingItemException($"A user with the Username: {username} does not exist.");
+            throw new NoneExistingUserException($"{username}");
+        }
+
+        /// <summary>
+        /// Write transaction logs to log file
+        /// </summary>
+        public void WriteTransactionLogs()
+        {
+            using (System.IO.StreamWriter file = new System.IO.StreamWriter(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\Data\\Logs.csv"), true))
+            {
+                foreach (Transaction transaction in Transactions)
+                {
+                    if (transaction.GetType() == typeof(BuyTransaction))
+                    {
+                        BuyTransaction t = (BuyTransaction)transaction;
+                        file.WriteLine($"{t.ID}, {t.Date}, {t.User}, {t.Product}");
+                    }
+                    else
+                    {
+                        file.WriteLine($"{transaction.ID}, {transaction.Date}, {transaction.User}, {transaction.Amount}");
+                    }
+
+                }
+            }
         }
 
 
@@ -124,12 +143,19 @@ namespace Stregsystem.ProgramFiles
                 string s = Regex.Replace(sArray[i], @"<(.|\n)*?>", string.Empty);
                 string[] productInformation = s.Split(';');
 
-                pList.Add(new Product(
-                    Convert.ToInt32(productInformation[0]),
-                    productInformation[1],
-                    Convert.ToDecimal(productInformation[2]),
-                    Convert.ToInt32(productInformation[3]) == 1,
-                    false));
+                try
+                {
+                    pList.Add(new Product(
+                        Convert.ToInt32(productInformation[0]),
+                        productInformation[1],
+                        Convert.ToDecimal(productInformation[2]),
+                        Convert.ToInt32(productInformation[3]) == 1,
+                        false));
+                }
+                catch (BadInfomationException)
+                {
+                }
+                
 
             }
 
@@ -149,13 +175,21 @@ namespace Stregsystem.ProgramFiles
             {
                 string[] userInformation = sArray[i].Split(',');
 
-                uList.Add(new User(
-                    Convert.ToInt32(userInformation[0]),
-                    userInformation[1],
-                    userInformation[2],
-                    userInformation[3],
-                    userInformation[5],
-                    Convert.ToDecimal(userInformation[4])));
+                try
+                {
+                    uList.Add(new User(
+                        userInformation[1],
+                        userInformation[2],
+                        userInformation[3],
+                        userInformation[5],
+                        Convert.ToDecimal(userInformation[4])));
+                }
+                catch (BadInfomationException)
+                {
+                }
+                catch (FormatException)
+                {
+                }
             }
 
             return uList;

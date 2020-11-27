@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Stregsystem.ProgramFiles 
@@ -13,22 +15,25 @@ namespace Stregsystem.ProgramFiles
         public string LastName { get; }
         public string UserName { get; }
         public string Email { get; }
-        private decimal _balance;
+        public decimal Balance { get; private set; }
 
-        public User(int id, string firstName, string lastName, string userName, string email, decimal balance)
-        {
-            this.ID = id;
-            this.FirstName = firstName;
-            this.LastName = lastName;
-            this.UserName = userName;
-            this.Email = email;
-            this._balance = balance;
-        }
+        private static int IDCounter = 0;
 
-        /// <returns>Balance</returns>
-        public decimal GetBalance()
+        public User(string firstName, string lastName, string userName, string email, decimal balance)
         {
-            return _balance;
+            this.ID = IDCounter++;
+            if (firstName != null)
+                this.FirstName = firstName;
+            if (lastName != null) 
+                this.LastName = lastName;
+            if (ValidateUsername(userName))
+                this.UserName = userName;
+            if (ValidateEmail(email))
+                this.Email = email;
+            this.Balance = balance / 100;
+
+            if (firstName == null || lastName == null || userName == null || email == null)
+                throw new BadInfomationException();
         }
 
         /// <summary>
@@ -37,7 +42,7 @@ namespace Stregsystem.ProgramFiles
         /// <param name="amount">Can be + or -</param>
         public void AddBalance(decimal amount)
         {
-            _balance += amount;
+            Balance += amount;
         }
 
         /// <returns>Returns user data to string "FirstName LastName (Email)"</returns>
@@ -64,6 +69,27 @@ namespace Stregsystem.ProgramFiles
         public override int GetHashCode()
         {
             return this.ID;
+        }
+
+        private bool ValidateUsername(string username)
+        {
+            if (Regex.IsMatch(username, "[^a-zA-Z0-9_]+"))
+                return false;
+            else
+                return true;
+        }
+
+        private bool ValidateEmail(string email)
+        {
+            try
+            {
+                var addr = new System.Net.Mail.MailAddress(email);
+                return addr.Address == email;
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }

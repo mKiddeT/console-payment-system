@@ -24,36 +24,93 @@ namespace Stregsystem.ProgramFiles
             ui.CommandEntered += e => ParseCommand(e.Command);
         }
 
+        /// <summary>
+        /// Command parser, used for parse the input command and choose the correct parsing method.
+        /// </summary>
+        /// <param name="command">Command to parse</param>
         private void ParseCommand(string command)
         {
             if (command.StartsWith(":"))
-                ParseAdminCommand(command);
+                try
+                {
+                    ParseAdminCommand(command);
+                }
+                catch (NoneExistingUserException e)
+                {
+                    ui.DisplayUserNotFound(e.Message);
+                }
+                catch (NoneExistingProductException e)
+                {
+                    ui.DisplayProductNotFound(e.Message);
+                }
             else
             {
                 string[] commandArray = command.Split(' ');
 
                 if (commandArray.Length == 1)
                 {
-                    ParseUserInformation(commandArray[0]);
+                    try
+                    {
+                        ParseUserInformation(commandArray[0]);
+                    }
+                    catch (NoneExistingUserException e)
+                    {
+                        ui.DisplayUserNotFound(e.Message);
+                    }
+
                 } 
                 else if (commandArray.Length == 2)
                 {
-                    ParseUserBuy(commandArray[0], commandArray[1]);
+                    try
+                    {
+                        ParseUserBuy(commandArray[0], commandArray[1]);
+                    }
+                    catch (NoneExistingUserException e)
+                    {
+                        ui.DisplayUserNotFound(e.Message);
+                    }
+                    catch (NoneExistingProductException e)
+                    {
+                        ui.DisplayProductNotFound(e.Message);
+                    }
+                    catch (InsufficientCreditsException)
+                    {
+                        ui.DisplayInsufficientCash(stregSystem.GetUserByUsername(commandArray[0]), stregSystem.GetProductByID(Convert.ToInt32(commandArray[1])));
+                    }
+                    
                 }
                 else if (commandArray.Length == 3)
                 {
-                    ParseUserMultiBuy(commandArray[0], commandArray[1], commandArray[2]);
+                    try
+                    {
+                        ParseUserMultiBuy(commandArray[0], commandArray[1], commandArray[2]);
+                    }
+                    catch (NoneExistingUserException e)
+                    {
+                        ui.DisplayUserNotFound(e.Message);
+                    }
+                    catch (NoneExistingProductException e)
+                    {
+                        ui.DisplayProductNotFound(e.Message);
+                    }
+                    catch (InsufficientCreditsException)
+                    {
+                        ui.DisplayInsufficientCash(stregSystem.GetUserByUsername(commandArray[0]), stregSystem.GetProductByID(Convert.ToInt32(commandArray[1])));
+                    }
                 }
                 else
-                {
-                    //TODO: Format error
+                { 
+                    ui.DisplayTooManyArgumentsError(command);
                 }
             }
         }
 
+        /// <summary>
+        /// Parse as an admin command.
+        /// </summary>
+        /// <param name="command">Command to parse</param>
         private void ParseAdminCommand(string command)
         {
-            //TODO: Lav det her :)
             string[] commandArray = command.Split(' ');
             if (adminCommands.ContainsKey(commandArray[0]))
                 adminCommands[commandArray[0]].Invoke(commandArray);
@@ -61,30 +118,50 @@ namespace Stregsystem.ProgramFiles
                 ui.DisplayAdminCommandNotFoundMessage(commandArray[0]);
         }
 
+        /// <summary>
+        /// Parse as user information command.
+        /// </summary>
+        /// <param name="username">Username to check information about</param>
         private void ParseUserInformation(string username)
         {
-            if (ValidateUser(username))
-                ui.DisplayUserInfo(stregSystem.GetUserByUsername(username));
+            ui.DisplayUserInfo(stregSystem.GetUserByUsername(username));
         }
 
-
+        /// <summary>
+        /// Parse as a buy command.
+        /// </summary>
+        /// <param name="username">Username of buyer</param>
+        /// <param name="stringProductID">Product ID of product to buy</param>
         private void ParseUserBuy(string username, string stringProductID)
         {
+            if (stringProductID == "")
+            {
+                ParseUserInformation(username);
+                return;
+            }
             if (!int.TryParse(stringProductID, out var productID))
             {
                 ui.DisplayGeneralError($"Product ID is not in the correct format.");
                 return;
             }
 
-            if (ValidateUser(username) && ValidateProduct(productID))
-            {
-                ui.DisplayUserBuysProduct(UserBuyProduct(username, productID));
-            }
+            Product product = stregSystem.GetProductByID(productID);
+            User user = stregSystem.GetUserByUsername(username);
+
+            if (product.Active)
+                ui.DisplayUserBuysProduct(stregSystem.BuyProduct(user, product));
+            else
+                ui.DisplayProductNotFound($"{productID}");
         }
 
+        /// <summary>
+        /// Parse as a multibuy command.
+        /// </summary>
+        /// <param name="username">Username of buyer</param>
+        /// <param name="stringAmount">Amount to buy</param>
+        /// <param name="stringProductID">Product ID of product to buy</param>
         private void ParseUserMultiBuy(string username, string stringAmount, string stringProductID)
         {
-            //TODO: Check om den kan købe amount, inden den gør noget
             if (!int.TryParse(stringAmount, out var amount) || amount <= 0)
             {
                 ui.DisplayGeneralError($"Amount is not in the correct format.");
@@ -96,83 +173,25 @@ namespace Stregsystem.ProgramFiles
                 return;
             }
 
-            if (ValidateUser(username) && ValidateProduct(productID))
-            {
-                if (stregSystem.GetUserByUsername(username).GetBalance() >= stregSystem.GetProductByID(productID).Price * amount)
-                {
-                    for (int i = 0; i < amount; i++)
-                    {
-                        if (i == amount-1)
-                            ui.DisplayUserBuysProduct(amount, UserBuyProduct(username, productID));
-                        else
-                            UserBuyProduct(username, productID);
-                    }
-                }
-                else 
-                    ui.DisplayInsufficientCash(stregSystem.GetUserByUsername(username), amount, stregSystem.GetProductByID(productID));
-            }
-        }
+            Product product = stregSystem.GetProductByID(productID);
+            User user = stregSystem.GetUserByUsername(username);
 
-        /// <summary>
-        /// Validate that a user with this username exists
-        /// </summary>
-        /// <param name="username">The username to check for</param>
-        /// <returns>Returns true if the user exists, otherwise returns false</returns>
-        private bool ValidateUser(string username)
-        {
-            try
-            {
-                stregSystem.GetUserByUsername(username);
-                return true;
-            }
-            catch (NoneExistingItemException e)
-            {
-                ui.DisplayUserNotFound(username);
-                return false;
-            }
-        }
-
-        /// <summary>
-        /// Validate that a product with this ID exists
-        /// </summary>
-        /// <param name="productID">The ID to check for</param>
-        /// <returns>Returns true if the product exists, otherwise returns false</returns>
-        private bool ValidateProduct(int productID)
-        {
-            try
-            {
-                stregSystem.GetProductByID(productID);
-                return true;
-            }
-            catch (NoneExistingItemException e)
+            if (!product.Active)
             {
                 ui.DisplayProductNotFound($"{productID}");
-                return false;
+                return;
             }
-        }
-
-        /// <summary>
-        /// The functionality of a user trying to buy a product.
-        /// </summary>
-        /// <param name="username">Username of the user.</param>
-        /// <param name="productID">ID of the product.</param>
-        private BuyTransaction UserBuyProduct(string username, int productID)
-        {
-            try
+            if ((user.Balance >= product.Price * amount) || product.CanBeBoughtOnCredit)
             {
-                BuyTransaction transaction = stregSystem.BuyProduct(stregSystem.GetUserByUsername(username), stregSystem.GetProductByID(productID));
-                return transaction;
+                BuyTransaction transaction = null;
+                for (int i = 0; i < amount; i++)
+                {
+                    transaction = stregSystem.BuyProduct(user, product);
+                }
+                ui.DisplayUserBuysProduct(amount, transaction);
             }
-            catch (NoneExistingItemException e)
-            {
-                ui.DisplayGeneralError(e.Message);
-            }
-            catch (InsufficientCreditsException)
-            {
-                ui.DisplayInsufficientCash(stregSystem.GetUserByUsername(username), stregSystem.GetProductByID(productID));
-            }
-
-            return null;
+            else 
+                ui.DisplayInsufficientCash(user, amount, product);
         }
 
         /// <summary>
@@ -194,113 +213,54 @@ namespace Stregsystem.ProgramFiles
             {
                 if (args.Length == 2)
                 {
-                    try
-                    {
-                        stregSystem.GetProductByID(Convert.ToInt32(args[1])).Active = true;
-                        stregSystem.UpdateActiveProductList();
-                        ui.Start();
-                    }
-                    catch (FormatException e)
-                    {
-                        ui.DisplayGeneralError(e.Message);
-                    }
-                    catch (NoneExistingItemException)
-                    {
-                        ui.DisplayProductNotFound(args[1]);
-                    }
+                    stregSystem.GetProductByID(Convert.ToInt32(args[1])).Active = true;
+                    stregSystem.UpdateActiveProductList();
+                    ui.Start();
                 }
+                else if(args.Length < 2)
+                    ui.DisplayGeneralError("Not enough arguments");
                 else
-                {
                     ui.DisplayTooManyArgumentsError(args[0]);
-                }
             });
             adminCommands.Add(":deactivate", (args) =>
             {
                 if (args.Length == 2)
                 {
-                    try
-                    {
-                        stregSystem.GetProductByID(Convert.ToInt32(args[1])).Active = false;
-                        stregSystem.UpdateActiveProductList();
-                        ui.Start();
-                    }
-                    catch (FormatException e)
-                    {
-                        ui.DisplayGeneralError(e.Message);
-                    }
-                    catch (NoneExistingItemException)
-                    {
-                        ui.DisplayProductNotFound(args[1]);
-                    }
+                    stregSystem.GetProductByID(Convert.ToInt32(args[1])).Active = false;
+                    stregSystem.UpdateActiveProductList();
+                    ui.Start();
                 }
+                else if (args.Length < 2)
+                    ui.DisplayGeneralError("Not enough arguments");
                 else
-                {
                     ui.DisplayTooManyArgumentsError(args[0]);
-                }
             });
             adminCommands.Add(":crediton", (args) =>
             {
                 if (args.Length == 2)
-                {
-                    try
-                    {
-                        stregSystem.GetProductByID(Convert.ToInt32(args[1])).CanBeBoughtOnCredit = true;
-                    }
-                    catch (FormatException e)
-                    {
-                        ui.DisplayGeneralError(e.Message);
-                    }
-                    catch (NoneExistingItemException)
-                    {
-                        ui.DisplayProductNotFound(args[1]);
-                    }
-                } else
-                {
+                    stregSystem.GetProductByID(Convert.ToInt32(args[1])).CanBeBoughtOnCredit = true;
+                else if (args.Length < 2)
+                    ui.DisplayGeneralError("Not enough arguments");
+                else
                     ui.DisplayTooManyArgumentsError(args[0]);
-                }
             });
             adminCommands.Add(":creditoff", (args) =>
             {
                 if (args.Length == 2)
-                {
-                    try
-                    {
-                        stregSystem.GetProductByID(Convert.ToInt32(args[1])).CanBeBoughtOnCredit = false;
-                    }
-                    catch (FormatException e)
-                    {
-                        ui.DisplayGeneralError(e.Message);
-                    }
-                    catch (NoneExistingItemException)
-                    {
-                        ui.DisplayProductNotFound(args[1]);
-                    }
-                } else
-                {
+                    stregSystem.GetProductByID(Convert.ToInt32(args[1])).CanBeBoughtOnCredit = false;
+                else if (args.Length < 2)
+                    ui.DisplayGeneralError("Not enough arguments");
+                else
                     ui.DisplayTooManyArgumentsError(args[0]);
-                }
             });
             adminCommands.Add(":addcredits", (args) =>
             {
                 if (args.Length == 3)
-                {
-                    try
-                    {
-                        stregSystem.GetUserByUsername(args[1]).AddBalance(Convert.ToDecimal(args[2]));
-                    }
-                    catch (FormatException e)
-                    {
-                        ui.DisplayGeneralError(e.Message);
-                    }
-                    catch (NoneExistingItemException)
-                    {
-                        ui.DisplayUserNotFound(args[1]);
-                    }
-                } else
-                {
+                    stregSystem.GetUserByUsername(args[1]).AddBalance(Convert.ToDecimal(args[2]));
+                else if (args.Length < 3) 
+                    ui.DisplayGeneralError("Not enough arguments");
+                else
                     ui.DisplayTooManyArgumentsError(args[0]);
-                }
-                
             });
         }
     }
