@@ -19,6 +19,4 @@ namespace Stregsystem.ProgramFiles
         User GetUserByUsername(string username);
         void WriteTransactionLogs();
     }
-
-    delegate void UserBalanceNotification(User user);
 }

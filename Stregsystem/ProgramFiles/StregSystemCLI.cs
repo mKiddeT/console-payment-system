@@ -32,7 +32,7 @@ namespace Stregsystem.ProgramFiles
 
         public void DisplayUserInfo(User user)
         {
-            Console.WriteLine($"Username: {user.UserName}, Name: {user.FirstName} {user.LastName}, Balance: {user.Balance}");
+            Console.WriteLine($"Username: {user.UserName}, Name: {user.FirstName} {user.LastName}, Balance: {user.Balance} kr");
             foreach (Transaction transaction in stregSystem.GetTransactions(user, 10).Reverse())
             {
                 Console.WriteLine(transaction);
